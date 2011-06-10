@@ -34,8 +34,8 @@ opts = OptionParser.new do |o|
   o.on_tail('-h', 'Help') { puts o; exit }
   begin
     o.parse!
-  rescue OptionParser::InvalidOption => inv_option
-    puts "ERROR: #{inv_option}"
+  rescue OptionParser::ParseError => inv_option
+    puts "*** ERROR: #{inv_option}"
     puts o
     exit 1
   end
@@ -47,7 +47,7 @@ end
 
 puts
 puts "User: #{$user}"
-puts "Pass: #{$pass}"
+puts "Pass: #{ ($pass.nil? || $pass.empty?) ? 'Not set' : $pass.gsub(/./, '*') }"
 puts
 puts "Target Repo: #{$target_repo}"
 puts "#{$source_branch} --> #{$target_branch}"
@@ -57,21 +57,21 @@ puts "Pull request's issue: #{$issue}" if $issue
 puts
 
 unless ($source_branch)
-  $stderr.puts "ERROR: Source Branch is not specified."
+  $stderr.puts "*** ERROR: Source Branch is not specified."
   puts
   puts opts
   exit 1
 end
 
 if ($title.nil? && $issue.nil?)
-  $stderr.puts "ERROR: Name or issue must be specified."
+  $stderr.puts "*** ERROR: Name or issue must be specified."
   puts
   puts opts
   exit 2
 end
 
 if (!$title.nil? && !$issue.nil?)
-  $stderr.puts "ERROR: Both title and issue may not be defined at the same time."
+  $stderr.puts "*** ERROR: Both title and issue may not be defined at the same time."
   puts
   puts opts
   exit 3
@@ -98,7 +98,7 @@ if (!$pass.empty?)
   creds += ":#{$pass}"
 end
 
-cmd = %Q{curl -i --user #{creds} \
+cmd = %Q{curl1 -i --user #{creds} \
   -d "pull[title]=#{$title}"            \
   -d "pull[base]=#{$target_branch}"     \
   -d "pull[head]=#{$source_branch}"     \
@@ -111,5 +111,9 @@ cmd = %Q{curl -i --user #{creds} \
 if (answer != 'y' || $verbose)
   puts cmd.gsub(/\s+/, ' ')
 else
-  system cmd
+  unless (system cmd)
+    puts "*** ERROR: cannot execute curl, make sure it's in the path!"
+    puts
+    puts "Command to execute:\n#{cmd.gsub(/\s+/, ' ')}"
+  end
 end
