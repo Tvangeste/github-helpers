@@ -47,7 +47,7 @@ end
 
 puts
 puts "User: #{$user}"
-puts "Pass: #{ ($pass.nil? || $pass.empty?) ? 'Not set' : $pass.gsub(/./, '*') }"
+puts "Pass: #{ ($pass.nil? || $pass.empty?) ? 'Not set, will be asked during request' : $pass.gsub(/./, '*') }"
 puts
 puts "Target Repo: #{$target_repo}"
 puts "#{$source_branch} --> #{$target_branch}"
@@ -78,7 +78,7 @@ if (!$title.nil? && !$issue.nil?)
 end
 
 if (!$verbose)
-  print "OK(y/n)? "
+  print "Create pull request? (y/N) "
   answer = gets.strip
   puts
 end
@@ -98,7 +98,7 @@ if (!$pass.empty?)
   creds += ":#{$pass}"
 end
 
-cmd = %Q{curl1 -i --user #{creds} \
+cmd = %Q{curl -i --user #{creds} \
   -d "pull[title]=#{$title}"            \
   -d "pull[base]=#{$target_branch}"     \
   -d "pull[head]=#{$source_branch}"     \
@@ -107,8 +107,8 @@ cmd = %Q{curl1 -i --user #{creds} \
   https://github.com/api/v2/json/pulls/#{$target_repo}
 }
 
-
 if (answer != 'y' || $verbose)
+  puts "Command line: "
   puts cmd.gsub(/\s+/, ' ')
 else
   unless (system cmd)
