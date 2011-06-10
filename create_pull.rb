@@ -25,7 +25,7 @@ opts = OptionParser.new do |o|
   o.on('-i', '--issue ISSUE_NO', "Existing Issue Number") { |i| $issue = i }
   o.separator ""
   o.separator "Optional:"
-  o.on('-d', '--description TEXT', "Short description of the pull request") { |d| $description = d }
+  o.on('-d', '--description TEXT', "Description of the pull request") { |d| $description = d }
   o.on('-r', '--tr REPO_NAME', "Target Repo [Default: #{DEFAULT_TARGET_REPO}]") { |tr| $target_repo = tr }
   o.on('-t', '--to BRANCH_NAME', "Target Branch [Default: #{DEFAULT_TARGET_BRANCH}]") { |tb| $target_branch = tb }
   o.on('-u', '--user LOGIN', "Github login [Default: #{DEFAULT_USER}]") { |login| $user = login }
@@ -50,7 +50,7 @@ puts "User: #{$user}"
 puts "Pass: #{ ($pass.nil? || $pass.empty?) ? 'Not set, will be asked during request' : $pass.gsub(/./, '*') }"
 puts
 puts "Target Repo: #{$target_repo}"
-puts "#{$source_branch} --> #{$target_branch}"
+puts "Pull request: #{$source_branch} --> #{$target_branch}"
 puts "Pull request's title: #{$title}" if $title
 puts "Pull request's description: #{$description}" if $description
 puts "Pull request's issue: #{$issue}" if $issue
